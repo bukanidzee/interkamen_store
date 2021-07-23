@@ -1,8 +1,9 @@
 from rest_framework import viewsets
+from rest_framework.mixins import UpdateModelMixin, CreateModelMixin, DestroyModelMixin
 from rest_framework.permissions import IsAdminUser
 
 from .models import Order, Item
-from .serializers import OrderSerializer, ItemPOSTSerializer, ItemGETSerializer
+from .serializers import OrderSerializer, ItemPOSTSerializer
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -10,7 +11,11 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [IsAdminUser, ]
 
-class ItemViewSet(viewsets.ModelViewSet):
+
+class ItemViewSet(UpdateModelMixin,
+                  CreateModelMixin,
+                  DestroyModelMixin,
+                  viewsets.GenericViewSet):
     queryset = Item.objects.all()
     serializer_class = ItemPOSTSerializer
     permission_classes = [IsAdminUser, ]

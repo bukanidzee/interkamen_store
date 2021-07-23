@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from typing import Any
 
 from .models import Product
 from .serializers import ProductSerializer
@@ -19,8 +20,8 @@ from .serializers import ProductSerializer
 #         return response
 
 
-@api_view(['GET'])
-def api_root(request, format=None):
+@api_view(['GET'])  # mypy: disallow-untyped-decorators=False
+def api_root(request: Any, format: Any = None) -> Any:
     return Response({
         'продукты': reverse('product-list', request=request, format=format),
         'пользователи': reverse('customuser-list', request=request, format=format),
