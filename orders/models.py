@@ -19,9 +19,15 @@ class Order(models.Model):
     status = models.CharField('Статус', choices=StatusChoices.choices, max_length=50,
                               default=StatusChoices.current)
     finished = models.DateTimeField('Время завершения', blank=True, null=True)
+    total_prize = MoneyField('Цена, руб', null=True, default=0, max_digits=7,
+                             decimal_places=2, default_currency='RUB')
 
     class Meta:
         ordering = ['-created']
+
+    def save(self, *args: List, **kwargs: Dict) -> Optional[None]:
+        self.total_prize = sum([item.prize for item in Item.objects.filter(order=self)])
+        super().save(*args, **kwargs)
 
     def find_number_of_order(self):
         return str(list(Order.objects.filter(owner=self.owner).order_by('created')).index(self) + 1)
@@ -38,6 +44,9 @@ class Item(models.Model):
     quantity = models.PositiveSmallIntegerField('Количество')
     prize = MoneyField('Цена, руб', null=True, default=0, max_digits=7,
                        decimal_places=2, default_currency='RUB')
+
+    class Meta:
+        unique_together = ['order', 'product', ]
 
     def save(self, *args: List, **kwargs: Dict) -> Optional[None]:
         self.prize = self.product.prize * self.quantity
